@@ -5,41 +5,34 @@ class Node:
         self.f_distance = float('inf')
         self.g_distance = float('inf')
 
-
+def sort_nodes(nodes:list):
+    #sort nodes and returns the n best, n can be 2 in this scenario
+    sorted_list = sorted(nodes,key=lambda x: x[0])
+    return sorted_list[0:4]
 
 def a_star_search(root:Node):
     root.f_distance = 0
     root.g_distance = 0
-    queue = [root]
+    queue = [(0,root)]
 
     while queue:
-        current_node = queue.pop(0)
-        print(current_node.value)
-        # if current_node.value in ['G1','G2','G3']:
-        #     return
+
+        final_distance, current_node  = queue.pop(0)
+        if current_node.value in  ['G1','G2','G3']:
+            print("found target value")
+            # return
         for child in current_node.children:
             new_g_distance = current_node.g_distance + current_node.children[child][0]
             if new_g_distance < child.g_distance:
                 child.g_distance = new_g_distance
                 child.f_distance = new_g_distance + current_node.children[child][1]
-                queue.append(child)
+                final_distance = child.f_distance
+                queue.append((final_distance,child))
+        queue = sort_nodes(queue)
 
 
 
 def main():
-    # root = Node('A')
-    # child_1 = Node('B')
-    # child_2 = Node('C')
-    # root.children[child_1] = [2,2] # where index 0 is the cost from the root node to the child
-    # root.children[child_2] = [3,2] # index 1 is the estimated cost from the current node to target node
-    # child_3 = Node('D')
-    # child_4 = Node("E")
-    # child_5 = Node("F")
-    # child_1.children[child_3] = [3,5]
-    # child_1.children[child_4] = [1,1]
-    # child_2.children[child_5] = [2,0]
-    # child_4.children[child_5] = [1,0]
-
     root = Node('S')
     child_1= Node('A')
     child_2 = Node('B')
@@ -66,6 +59,7 @@ def main():
     child_6.children[goal_3] = [7,0]
     child_5.children[goal_3] = [8,0]
 
+
     a_star_search(root)
 
     print(root.f_distance)
@@ -79,11 +73,6 @@ def main():
     print(goal_1.f_distance)
     print(goal_2.f_distance)
     print(goal_3.f_distance)
-
-    
-
-
-
 
 
 main()
