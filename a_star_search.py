@@ -6,23 +6,47 @@ class Node:
         self.g_distance = float('inf')
 
 
+def get_path(predecessor,root,target):
+    path = []
+    current_node = target
+    while current_node != root:
+        if current_node not in predecessor:
+            break
+        else:
+            path.insert(0,current_node)
+            current_node = predecessor[current_node]
+    path.insert(0,root)
+    print("path to goal is", path)
 
-def a_star_search(root:Node):
+
+def sort_nodes(nodes:list):
+    sorted_list = sorted(nodes,key=lambda x: x[0])
+    return sorted_list
+
+def a_star_search(root:Node,target):
     root.f_distance = 0
     root.g_distance = 0
-    queue = [root]
+    queue = [(root.f_distance,root)]
+    predecessor = {}
+    min_distances = {root.value:root.f_distance}
+
 
     while queue:
-        current_node = queue.pop(0)
+        f_distance ,current_node = queue.pop(0)
         print(current_node.value)
-        # if current_node.value in ['G1','G2','G3']:
-        #     return
+        if current_node.value == target:
+            print("distances", min_distances)
+            print("predeseccor", predecessor)
+            get_path(predecessor,root.value,target)
+            return 
         for child in current_node.children:
             new_g_distance = current_node.g_distance + current_node.children[child][0]
             if new_g_distance < child.g_distance:
                 child.g_distance = new_g_distance
                 child.f_distance = new_g_distance + current_node.children[child][1]
-                queue.append(child)
+                queue.append((child.f_distance,child))
+                predecessor[child.value] = current_node.value
+                min_distances[child.value] = child.f_distance
 
 
 
@@ -66,19 +90,19 @@ def main():
     child_6.children[goal_3] = [7,0]
     child_5.children[goal_3] = [8,0]
 
-    a_star_search(root)
+    a_star_search(root,"G3")
 
-    print(root.f_distance)
-    print(child_1.f_distance)
-    print(child_2.f_distance)
-    print(child_3.f_distance)
-    print(child_4.f_distance)
-    print(child_5.f_distance)
-    print(child_6.f_distance)
+    # print(root.f_distance)
+    # print(child_1.f_distance)
+    # print(child_2.f_distance)
+    # print(child_3.f_distance)
+    # print(child_4.f_distance)
+    # print(child_5.f_distance)
+    # print(child_6.f_distance)
 
-    print(goal_1.f_distance)
-    print(goal_2.f_distance)
-    print(goal_3.f_distance)
+    # print(goal_1.f_distance)
+    # print(goal_2.f_distance)
+    # print(goal_3.f_distance)
 
     
 
