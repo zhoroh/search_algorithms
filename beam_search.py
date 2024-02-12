@@ -1,80 +1,78 @@
 class Node:
-    def __init__(self,value):
+    def __init__(self, value: str, parent=None):
         self.value = value
-        self.children = {}
-        self.f_distance = float('inf')
-        self.g_distance = float('inf')
+        self.children = []
+        self.heuristic_to_goal = float('inf')
+        self.parent = parent
 
-def sort_nodes(nodes:list):
-    #sort nodes and returns the n best, n can be 2 in this scenario
-    sorted_list = sorted(nodes,key=lambda x: x[0])
-    return sorted_list[0:4]
 
-def a_star_search(root:Node):
-    root.f_distance = 0
-    root.g_distance = 0
-    queue = [(0,root)]
+WIDTH = 2  # the number of best results we choosing, if we choose 1 it'll become hill climbing
 
-    while queue:
 
-        final_distance, current_node  = queue.pop(0)
-        if current_node.value in  ['G1','G2','G3']:
-            print("found target value")
-            # return
-        for child in current_node.children:
-            new_g_distance = current_node.g_distance + current_node.children[child][0]
-            if new_g_distance < child.g_distance:
-                child.g_distance = new_g_distance
-                child.f_distance = new_g_distance + current_node.children[child][1]
-                final_distance = child.f_distance
-                queue.append((final_distance,child))
-        queue = sort_nodes(queue)
+def sort_nodes_by_heuristic(node_list: list[Node]):
+    return sorted(node_list, key=lambda node: node.heuristic_to_goal)
 
+
+def beam_search(root: Node, target: str):
+    frontier = [(root, None)]
+
+    while frontier:
+        next_frontier = []
+        for node, parent in frontier:
+            node.parent = parent
+            if node.value == target:
+                return f"Path found: {' -> '.join(reconstruct_path(node))}"
+            sorted_children = sort_nodes_by_heuristic(node.children)[:WIDTH]
+            next_frontier.extend([(child, node) for child in sorted_children])
+        frontier = next_frontier
+
+    return f"{target} NOT Found"
+
+
+def reconstruct_path(target_node: Node) -> list:
+    """Reconstructs the path from the found target node back to the root."""
+    path = []
+    current_node = target_node
+    while current_node:
+        path.append(current_node.value)
+        current_node = current_node.parent
+    path.reverse()
+    return path
 
 
 def main():
     root = Node('S')
-    child_1= Node('A')
+    child_1 = Node('A')
     child_2 = Node('B')
     child_3 = Node('C')
     child_4 = Node('D')
     child_5 = Node('F')
     child_6 = Node('E')
-    goal_1 = Node('G1')
-    goal_2 = Node('G2')
-    goal_3 = Node('G3')
-    root.children[child_1] = [5,7]
-    root.children[child_2] = [9,3]
-    root.children[child_4] = [6,6]
-    child_1.children[child_2] = [3,3]
-    child_1.children[goal_1] = [9,0]
-    child_2.children[child_1] = [2,7]
-    child_2.children[child_3] = [1,4]
-    child_3.children[root] = [6,4]
-    child_3.children[goal_2] = [5,0]
-    child_3.children[child_5] = [7,6]
-    child_4.children[root] = [1,5]
-    child_4.children[child_3] = [2,4]
-    child_4.children[child_6] = [2,5]
-    child_6.children[goal_3] = [7,0]
-    child_5.children[goal_3] = [8,0]
+    goal = Node("G")
+    root.children.append(child_1)
+    root.children.append(child_2)
+    root.children.append(child_3)
+    root.heuristic_to_goal = 7
 
+    child_1.children.append(child_4)
+    child_1.children.append(child_5)
+    child_1.heuristic_to_goal = 6
 
-    a_star_search(root)
+    child_2.children.append(child_6)
+    child_2.children.append(goal)
+    child_2.heuristic_to_goal = 3
 
-    print(root.f_distance)
-    print(child_1.f_distance)
-    print(child_2.f_distance)
-    print(child_3.f_distance)
-    print(child_4.f_distance)
-    print(child_5.f_distance)
-    print(child_6.f_distance)
+    child_3.children.append(goal)
+    child_3.heuristic_to_goal = 2
+    child_4.heuristic_to_goal = 5
+    child_5.heuristic_to_goal = 5
+    child_6.heuristic_to_goal = 2
+    goal.heuristic_to_goal = 0
 
-    print(goal_1.f_distance)
-    print(goal_2.f_distance)
-    print(goal_3.f_distance)
+    response = beam_search(root, "G")
+    print(response)
 
 
 main()
 
-#A* is very very similar to dijiskira search
+# A* is very very similar to dijiskira search
