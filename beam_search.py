@@ -1,3 +1,7 @@
+
+print("my name is Oreoluwa")
+
+
 class Node:
     def __init__(self, value: str, parent=None):
         self.value = value
